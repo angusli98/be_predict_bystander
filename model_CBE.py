@@ -5,11 +5,9 @@ from __future__ import print_function
 import sys, string, pickle, subprocess, os, datetime, gzip, time
 from collections import defaultdict, OrderedDict
 
-import torch, torchvision
+import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms, utils
-import torchvision.utils
 import torch.nn as nn
 
 import glob
@@ -70,22 +68,24 @@ def parse_custom_hyperparams(custom_hyperparams):
 
   if custom_hyperparams == '':
     return
-
+  elif '{' in custom_hyperparams and '}' in custom_hyperparams:
+    hyperparameters = eval(custom_hyperparams)
   # Parse hyperparams
-  for term in custom_hyperparams.split('+'):
-    [kw, args] = term.split(':')
-    if kw in ['encoder_hidden_sizes', 'decoder_hidden_sizes']:
-      # Expect comma-separated ints
-      parse = lambda arg: [int(s) for s in arg.split(',')]
-    if kw in ['context_feature', 'fullcontext_feature', 'position_feature']:
-      # Expect 1 or 0
-      parse = lambda arg: bool(int(arg))
-    if kw in ['context_radii']:
-      parse = lambda arg: int(arg)
-    if kw in ['learning_rate', 'plateau_patience', 'plateau_threshold', 'dropout_p']:
-      parse = lambda arg: float(arg)
-    if kw in hyperparameters:
-      hyperparameters[kw] = parse(args)
+  else:
+    for term in custom_hyperparams.split('+'):
+      [kw, args] = term.split(':')
+      if kw in ['encoder_hidden_sizes', 'decoder_hidden_sizes']:
+        # Expect comma-separated ints
+        parse = lambda arg: [int(s) for s in arg.split(',')]
+      if kw in ['context_feature', 'fullcontext_feature', 'position_feature']:
+        # Expect 1 or 0
+        parse = lambda arg: bool(int(arg))
+      if kw in ['context_radii']:
+        parse = lambda arg: int(arg)
+      if kw in ['learning_rate', 'plateau_patience', 'plateau_threshold', 'dropout_p']:
+        parse = lambda arg: float(arg)
+      if kw in hyperparameters:
+        hyperparameters[kw] = parse(args)
   return
 
 
@@ -465,7 +465,7 @@ class BaseEditing_Dataset(Dataset):
 
       # Append wild-type row
       wt_row = pd.DataFrame({col: col[0] for col in nt_cols}, index = [0])
-      y = y.append(wt_row, ignore_index = True, sort = False)
+      y = pd.concat([y, wt_row], ignore_index = True, sort = False)
 
       for jdx, row in y.iterrows():
         col_to_obs_edit = {col: row[col] for col in nt_cols}

@@ -1,0 +1,159 @@
+model dir: /broad/liulabdata/Angus_Li/Playground/TadCBE/bystander_TadCBEb_0/
+Hyperparameters: {'context_feature': True, 'fullcontext_feature': False, 'position_feature': True, 'context_radii': 7, 'encoder_hidden_sizes': [16, 16], 'decoder_hidden_sizes': [64, 64, 64, 64], 'dropout_p': 0.05, 'learning_rate': 0.0002, 'exponential_lr_decay': 1, 'plateau_patience': 5, 'plateau_threshold': 0.001, 'plateau_factor': 0.5, 'batch_size': 5, 'num_epochs': 300, 'training_fraction': 1.0}
+x_dim: 90
+y_mask_dim: 180
+train_test_id: 0
+----------
+Epoch 0/299
+train Loss: 0.2811
+valid Loss: -0.1034
+----------
+Epoch 1/299
+train Loss: -0.1355
+valid Loss: -0.1172
+----------
+Epoch 2/299
+train Loss: -0.1416
+valid Loss: -0.1222
+----------
+Epoch 3/299
+train Loss: -0.1489
+valid Loss: -0.1258
+----------
+Epoch 4/299
+train Loss: -0.1535
+valid Loss: -0.1290
+----------
+Epoch 5/299
+train Loss: -0.1599
+valid Loss: -0.1307
+----------
+Epoch 6/299
+train Loss: -0.1613
+valid Loss: -0.1336
+----------
+Epoch 7/299
+train Loss: -0.1659
+valid Loss: -0.1353
+----------
+Epoch 8/299
+train Loss: -0.1702
+valid Loss: -0.1374
+----------
+Epoch 9/299
+train Loss: -0.1770
+valid Loss: -0.1382
+----------
+Epoch 10/299
+train Loss: -0.1791
+valid Loss: -0.1392
+----------
+Epoch 11/299
+train Loss: -0.1745
+valid Loss: -0.1402
+----------
+Epoch 12/299
+train Loss: -0.1828
+valid Loss: -0.1442
+----------
+Epoch 13/299
+train Loss: -0.1811
+valid Loss: -0.1447
+----------
+Epoch 14/299
+train Loss: -0.1779
+valid Loss: -0.1455
+----------
+Epoch 15/299
+train Loss: -0.1933
+valid Loss: -0.1473
+----------
+Epoch 16/299
+train Loss: -0.1888
+valid Loss: -0.1489
+----------
+Epoch 17/299
+train Loss: -0.1909
+valid Loss: -0.1497
+----------
+Epoch 18/299
+train Loss: -0.1932
+valid Loss: -0.1504
+----------
+Epoch 19/299
+train Loss: -0.1918
+valid Loss: -0.1521
+----------
+Epoch 20/299
+train Loss: -0.1996
+valid Loss: -0.1531
+----------
+Epoch 21/299
+train Loss: -0.2016
+valid Loss: -0.1542
+----------
+Epoch 22/299
+train Loss: -0.2025
+valid Loss: -0.1555
+----------
+Epoch 23/299
+train Loss: -0.2017
+valid Loss: -0.1576
+----------
+Epoch 24/299
+train Loss: -0.2041
+valid Loss: -0.1596
+----------
+Epoch 25/299
+train Loss: -0.2087
+valid Loss: -0.1600
+----------
+Epoch 26/299
+train Loss: -0.2124
+valid Loss: -0.1625
+----------
+Epoch 27/299
+train Loss: -0.2141
+valid Loss: -0.1580
+----------
+Epoch 28/299
+train Loss: -0.2134
+valid Loss: -0.1647
+----------
+Epoch 29/299
+train Loss: -0.2107
+valid Loss: -0.1663
+----------
+Epoch 30/299
+train Loss: -0.2127
+valid Loss: -0.1667
+----------
+Epoch 31/299
+train Loss: -0.2218
+valid Loss: -0.1690
+----------
+Epoch 32/299
+train Loss: -0.2236
+valid Loss: -0.1590
+----------
+Epoch 33/299
+train Loss: -0.2235
+valid Loss: -0.1728
+----------
+Epoch 34/299
+train Loss: -0.2292
+valid Loss: -0.1747
+----------
+Epoch 35/299
+train Loss: -0.2323
+valid Loss: -0.1768
+----------
+Epoch 36/299
+train Loss: -0.2278
+valid Loss: -0.1763
+----------
+Epoch 37/299
+train Loss: -0.2315
+valid Loss: -0.1789
+----------
+Epoch 38/299

@@ -214,8 +214,8 @@ def __seq_to_query_df(seq):
   combin_mut_df = __form_combinatorial_core_df(nt_cols, col_to_nt)
   combin_binary_mut_df = __form_binary_combinatorial_core_df(nt_cols, col_to_nt)
 
-  query_df = single_mut_df.append(combin_mut_df, ignore_index = True, sort = False)
-  query_df = query_df.append(combin_binary_mut_df, ignore_index = True, sort = False)
+  query_df = pd.concat((single_mut_df, combin_mut_df), ignore_index = True, sort = False)
+  query_df = pd.concat((query_df, combin_binary_mut_df), ignore_index = True, sort = False)
   query_df = query_df.drop_duplicates()
 
   # Filter wild-type
@@ -273,6 +273,7 @@ def __load_model_hyperparameters():
   with open(log_fn) as f:
     lines = f.readlines()
   model_hyperparameters = lines[1].replace('Hyperparameters: ', '')
+  print(model_hyperparameters)
   x_dim = lines[2].replace('x_dim: ', '')
   y_mask_dim = lines[3].replace('y_mask_dim: ', '')
   train_test_id = lines[4].replace('train_test_id: ', '')
@@ -360,10 +361,10 @@ def predict(seq):
 
 def init_model(base_editor = '', celltype = ''):
   # Check
-  ok_editors = set(models_design['Public base editor'])
-  assert base_editor in ok_editors, f'Bad base editor name\nAvailable options: {ok_editors}'
-  ok_celltypes = set(models_design["Celltype"])
-  assert celltype in ok_celltypes, f'Bad celltype\nAvailable options: {ok_celltypes}'
+  #ok_editors = set(models_design['Public base editor'])
+  #assert base_editor in ok_editors, f'Bad base editor name\nAvailable options: {ok_editors}'
+  #ok_celltypes = set(models_design["Celltype"])
+  #assert celltype in ok_celltypes, f'Bad celltype\nAvailable options: {ok_celltypes}'
 
   # Update global settings
   spec = {
@@ -385,6 +386,8 @@ def init_model(base_editor = '', celltype = ''):
   global model_script
   if model_settings['__base_editor_type'] == 'CBE':
     import model_CBE as model_script
+  elif model_settings['__base_editor_type'] == 'TadCBE':
+    import model_TadCBE as model_script
   else:
     import model_ABE as model_script
 

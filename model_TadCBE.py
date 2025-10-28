@@ -5,11 +5,9 @@ from __future__ import print_function
 import sys, string, pickle, subprocess, os, datetime, gzip, time
 from collections import defaultdict, OrderedDict
 
-import torch  #, torchvision
+import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
-# from torchvision import transforms, utils
-# import torchvision.utils
 import torch.nn as nn
 
 import glob
@@ -70,22 +68,24 @@ def parse_custom_hyperparams(custom_hyperparams):
 
   if custom_hyperparams == '':
     return
-
+  elif '{' in custom_hyperparams and '}' in custom_hyperparams:
+    hyperparameters = eval(custom_hyperparams)
   # Parse hyperparams
-  for term in custom_hyperparams.split('+'):
-    [kw, args] = term.split(':')
-    if kw in ['encoder_hidden_sizes', 'decoder_hidden_sizes']:
-      # Expect comma-separated ints
-      parse = lambda arg: [int(s) for s in arg.split(',')]
-    if kw in ['context_feature', 'fullcontext_feature', 'position_feature']:
-      # Expect 1 or 0
-      parse = lambda arg: bool(int(arg))
-    if kw in ['context_radii']:
-      parse = lambda arg: int(arg)
-    if kw in ['learning_rate', 'plateau_patience', 'plateau_threshold', 'dropout_p']:
-      parse = lambda arg: float(arg)
-    if kw in hyperparameters:
-      hyperparameters[kw] = parse(args)
+  else:
+    for term in custom_hyperparams.split('+'):
+      [kw, args] = term.split(':')
+      if kw in ['encoder_hidden_sizes', 'decoder_hidden_sizes']:
+        # Expect comma-separated ints
+        parse = lambda arg: [int(s) for s in arg.split(',')]
+      if kw in ['context_feature', 'fullcontext_feature', 'position_feature']:
+        # Expect 1 or 0
+        parse = lambda arg: bool(int(arg))
+      if kw in ['context_radii']:
+        parse = lambda arg: int(arg)
+      if kw in ['learning_rate', 'plateau_patience', 'plateau_threshold', 'dropout_p']:
+        parse = lambda arg: float(arg)
+      if kw in hyperparameters:
+        hyperparameters[kw] = parse(args)
   return
 
 
@@ -120,7 +120,7 @@ class DeepAutoregressiveModel(nn.Module):
     params = self.unedited_bias
 
     def form_single(pos, ref_nt):
-      ref_nt_indexer = {'A': 0, 'C': 1}
+      ref_nt_indexer = {'C': 0, 'A': 1}
       ref_nt_index = ref_nt_indexer[ref_nt]
       pos_idx = pos + 9
       single_vec = torch.zeros(1, 4)
@@ -504,15 +504,15 @@ class BaseEditing_Dataset(Dataset):
       - No edit is all 0s
     '''
     self.edit_mapper = dict()
-    self.edit_mapper['A'] = {
-      'A': [0, 0, 0],
-      'C': [1, 0, 0],
-      'G': [0, 1, 0],
-      'T': [0, 0, 1],
-    }
     self.edit_mapper['C'] = {
       'A': [1, 0, 0],
       'C': [0, 0, 0],
+      'G': [0, 1, 0],
+      'T': [0, 0, 1],
+    }
+    self.edit_mapper['A'] = {
+      'A': [0, 0, 0],
+      'C': [1, 0, 0],
       'G': [0, 1, 0],
       'T': [0, 0, 1],
     }
@@ -524,8 +524,8 @@ class BaseEditing_Dataset(Dataset):
   def form_masked_edit_vectors(self, editable_pos, pos_to_col, col_to_obs_edit):
     # Form least masked edit vector
     least_masked_pos = max(editable_pos)
-    least_masked_edit_vector_a = []
     least_masked_edit_vector_c = []
+    least_masked_edit_vector_g = []
     for p in range(-9, 20 + 1):
       if p < least_masked_pos:
         if p in editable_pos:
@@ -533,20 +533,20 @@ class BaseEditing_Dataset(Dataset):
           col = pos_to_col[p]
           ref_nt = col[0]
           obs_nt = col_to_obs_edit[col]
-          if ref_nt == 'A':
-            least_masked_edit_vector_a += self.edit_mapper[ref_nt][obs_nt]
-            least_masked_edit_vector_c += self.uneditable_vec
-          elif ref_nt == 'C':
+          if ref_nt == 'C':
             least_masked_edit_vector_c += self.edit_mapper[ref_nt][obs_nt]
-            least_masked_edit_vector_a += self.uneditable_vec
+            least_masked_edit_vector_g += self.uneditable_vec
+          elif ref_nt == 'A':
+            least_masked_edit_vector_g += self.edit_mapper[ref_nt][obs_nt]
+            least_masked_edit_vector_c += self.uneditable_vec
         else:
           # Uneditable
-          least_masked_edit_vector_a += self.uneditable_vec
           least_masked_edit_vector_c += self.uneditable_vec
+          least_masked_edit_vector_g += self.uneditable_vec
       elif p >= least_masked_pos:
         # Masked current and future
-        least_masked_edit_vector_a += self.future_mask_vec
         least_masked_edit_vector_c += self.future_mask_vec
+        least_masked_edit_vector_g += self.future_mask_vec
 
     # Produce all edit vecs by adding masking to least masked vec
     single_row_y = []
@@ -555,9 +555,9 @@ class BaseEditing_Dataset(Dataset):
       mask_len = 30 - idx
       mask = self.future_mask_vec * mask_len
       mask_idx = idx * self.ohe_len
-      # print(pos, len(least_masked_edit_vector_a[:mask_idx]), len(mask))
-      edit_vector_c = least_masked_edit_vector_a[:mask_idx] + mask
-      edit_vector_g = least_masked_edit_vector_c[:mask_idx] + mask
+      # print(pos, len(least_masked_edit_vector_c[:mask_idx]), len(mask))
+      edit_vector_c = least_masked_edit_vector_c[:mask_idx] + mask
+      edit_vector_g = least_masked_edit_vector_g[:mask_idx] + mask
       edit_vec = edit_vector_c + edit_vector_g 
       single_row_y.append(edit_vec)
 
